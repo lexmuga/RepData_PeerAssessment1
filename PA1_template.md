@@ -65,16 +65,271 @@ library(lattice)
 library(stringr)
 ```
 
-## What is mean total number of steps taken per day?
+## 1. What is mean total number of steps taken per day?
+
+####    1.1. We make a histogram of the total number of steps taken each day. Days with missing values are not included.
+
+See `figure/plot1-histogram.png`.
+
+```r
+##       R Script of the histogram
+png(file = "figure/plot1-histogram.png",width=640,height=480) 
+qplot(date, data = df, weight = steps, 
+      xlab = "Date", ylab = "Steps", 
+      main = "Histogram of the Total Number of Steps Taken Per Day") + 
+      geom_histogram(colour = "black", fill = "green") + 
+      theme(axis.text.x = element_text(angle = 90, colour="blue",size=7),
+                axis.text.y = element_text(colour = "blue",size=10))
+dev.off()
+```
+
+```
+## quartz_off_screen 
+##                 2
+```
+
+####    1.2. We calculate and report the mean and median total number of steps taken per day.
+
+
+```r
+##      R Script of the mean and median of the total number of steps per day
+numSteps <- summarise(group_by(df, date), total=sum(steps))
+mean <- format(round(mean(numSteps$total)), big.mark = ",")
+median <- format(round(median(numSteps$total)), big.mark = ",")
+```
+The mean and the median of the total number of steps taken per day are
+respectively : 
+
+$\text{mean} = 10,766\quad$   and   $\quad\text{median} = 10,765$.
+
+## 2. What is the average daily activity pattern?
+
+####    2.1. We make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis). 
+
+See `figure/plot2-time_series.png`.
+
+
+```r
+#       R Script for the time series plot of the average daily activity pattern
+dailyPattern <- summarise(group_by(df, interval), averageSteps = mean(steps)) 
+labels <- sprintf("%0004d",seq(0,2400,by=100))
+png(file = "figure/plot2-time_series.png",width=640,height=480) 
+xyplot(
+  averageSteps ~ interval,
+  data = dailyPattern,
+  type = "l",
+  main = "A Time-Series Plot of the Average Activity Pattern
+  (There are 12 five-minute intervals between x-ticks)",
+  xlab = "Intervals",
+  ylab = "Average Number of Steps",
+  scales = list(x=list(tick.number=25, labels = labels, rot = 90)),
+  xlim = c(0,2399)
+)
+dev.off()
+```
+
+```
+## quartz_off_screen 
+##                 2
+```
+
+####    2.2. We answer the question  "Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?"
 
 
 
-## What is the average daily activity pattern?
+```r
+index <- dailyPattern[which.max(dailyPattern$averageSteps),]
+index <- as.character(index[1,1])
+hr <-as.numeric(str_sub(index,start=1,end=2))
+min <- as.numeric(str_sub(index,start=3,end=4))
+```
+Hence, the 5-minute interval that contains the maximum number of steps is equal to 0835 which is the 8th 5-minute interval of the the 9th hour of the day.
+
+## 3. Imputing missing values
 
 
+```r
+missingValues <- rawdf[is.na(rawdf$step),]
+missingDays <- summarise(group_by(missingValues, date), missing = n())
+```
 
-## Imputing missing values
+####    3.1. We calculate and report the total number of missing values in the dataset.
 
 
+```r
+missingNumber = format(nrow(missingValues),big.mark=",")
+missingNumber
+```
 
-## Are there differences in activity patterns between weekdays and weekends?
+```
+## [1] "2,304"
+```
+
+```r
+missingDays
+```
+
+```
+## Source: local data frame [8 x 2]
+## 
+##         date missing
+## 1 2012-10-01     288
+## 2 2012-10-08     288
+## 3 2012-11-01     288
+## 4 2012-11-04     288
+## 5 2012-11-09     288
+## 6 2012-11-10     288
+## 7 2012-11-14     288
+## 8 2012-11-30     288
+```
+There are 2,304 missing values in the dataset which are uniformly distributed among the 8 days, since $288 \times 8 = 2,304$. 
+
+
+####    3.2. We devise a strategy for filling in all of the missing values in the dataset. 
+   
+*       The number of 5-minute intervals in a day is 288.
+
+*       Each of the 8 days mentioned above has 288 missing values.
+
+*       We computed the average number of steps per interval for each of the 5-minute intervals of a day from the 1st 5-minute interval 0000 to the last 5-minute interval 2375.
+
+*       Hence, we shall fill up the missing value of each of the 5-minute intervals of each of the 8 days metioned above by the computed mean or the computed average number of steps of each corresponding interval.
+
+
+####     3.3. We create a new dataset that is equal to the original dataset but with the missing data filled in.
+
+
+```r
+#       R code to create a new dataset equal to the original with missing data supplied.
+#       subset with complete data
+lower <- rawdf[!is.na(rawdf$steps),]
+#       subset with incomplete data due missing steps
+upper <- rawdf[is.na(rawdf$steps),]
+#       incomplete data is replaced by mean of number of steps 
+upper <- data.frame(dailyPattern[match(upper$interval, dailyPattern$interval),2],select(upper, -steps))
+#       change the name of the first column to 'steps'     
+names(upper)[1] <- 'steps'
+#       rowbinding the two data frames 'upper' and 'lower'
+newdf <- arrange(rbind(upper,lower), date, interval)
+```
+
+####     3.4. We make a histogram of the total number of steps taken each day.
+
+See `figure/plot3-new_histogram.png'.
+
+```r
+##       R Script of the histogram      
+png(file = "figure/plot3-new_histogram.png",width=640,height=480) 
+qplot(date, data = newdf, weight = steps, 
+      xlab = "Date", ylab = "Steps", 
+      main = "Histogram of the Total Number of Steps Taken Per Day") + 
+      geom_histogram(colour = "black", fill = "green") + 
+      theme(axis.text.x = element_text(angle = 90, colour="blue",size=7),
+                axis.text.y = element_text(colour = "blue",size=10))
+dev.off()
+```
+
+```
+## quartz_off_screen 
+##                 2
+```
+
+#####   3.4.1. We calculate and report the mean and median total number of steps taken per day. 
+
+```r
+#  R Script of the mean and median of the total number of steps per day
+numSteps2 <- summarise(group_by(newdf, date), total=sum(steps))
+mean2 <- format(round(mean(numSteps2$total)), big.mark = ",")
+median2 <- format(round(median(numSteps2$total)), big.mark = ",")
+```
+The mean of the total number of steps per day if we impute the missing values with the computed mean of the corresponding 5-minute interval is equal 10,766. 
+
+The median if we impute the missing values with the computed mean of the corresponding 5-minute interval is equal to 10,766.
+
+#####   3.4.2. We answer the question "do these values differ from the estimates from the first part of the assignment?". 
+
+```r
+# ##      R Script of the mean and median of the total number of steps per day
+# numSteps2 <- summarise(group_by(newdf, date), total=sum(steps))
+# mean2 <- format(round(mean(numSteps2$total)), big.mark = ",")
+# median2 <- format(round(median(numSteps2$total)), big.mark = ",")
+```
+
+Comparison | original dataset | modified dataset              
+-----------|------------------|-------------------          
+mean       |     10,766     |  10,766                                                                          
+median     |   10,765     |  10,766                    
+
+The difference in the computation of the mean between the original  and modified datasets is zero.
+
+However, the difference with respect to the median between the original and the modified datasets is 
+0.0001104207.
+
+If we use the median instead of the mean in filling up the missing values,
+the difference between the computed medians could be zero. However,
+the difference between the computed means may not be zero.
+
+#####   3.4.3. What is the impact of imputing missing data on the estimates of the total daily number of steps?
+
+If the values that are used to replaced the missing data are meaningless or invalid from the "true" values which are missing, then these "illegal" values may cause problems in the statistical analyses.
+
+## 4. Are there differences in activity patterns between weekdays and weekends?
+
+####    4.1.    We create a new factor variable in the dataset with two levels – “weekday” and “weekend” indicating whether a given date is a weekday or weekend day.
+
+
+```r
+weekDays <- data.frame(weekday = c("Sunday",
+                                   "Monday",
+                                   "Tuesday",
+                                   "Wednesday",
+                                   "Thursday",
+                                   "Friday",
+                                   "Saturday"), 
+                       weeklevel = c("weekend",
+                                     "weekday",
+                                     "weekday",
+                                     "weekday",
+                                     "weekday",
+                                     "weekday",
+                                     "weekend"))
+levels <- weekDays[match(weekdays(as.POSIXct(rawdf$date)),weekDays$weekday),2]
+rawdf2 <- data.frame(rawdf, weeklevel = levels)
+rawdf2[c(1:3, 1720:1722),]
+```
+
+```
+##      steps       date interval weeklevel
+## 1       NA 2012-10-01     0000   weekday
+## 2       NA 2012-10-01     0005   weekday
+## 3       NA 2012-10-01     0010   weekday
+## 1720     0 2012-10-06     2315   weekend
+## 1721     0 2012-10-06     2320   weekend
+## 1722     0 2012-10-06     2325   weekend
+```
+
+####    4.2.    We make a panel plot containing a time series plot (i.e. type = "l" ) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
+
+See `figure/plot4-panel_plot.png`
+
+```r
+#       The dataset is processed where observations with missing values are removed.
+df2 <- rawdf2[complete.cases(rawdf2),]
+dailyPattern2 <- summarise(group_by(df2, interval, weeklevel), averageSteps = mean(steps)) 
+labels <- sprintf("%0004d",seq(0,2400,by=100))
+png(file = "figure/plot4-panel_plot.png",width=540,height=640) 
+xyplot(averageSteps ~ interval| levels(dailyPattern2$weeklevel), 
+       data = dailyPattern2,
+       type = "l",
+       xlab = "Interval",
+       ylab = "Average Number of Steps",
+       scales = list(x=list(tick.number=25, labels = labels, rot = 90)),
+       xlim = c(0,2399),
+       layout=c(1,2))
+dev.off()
+```
+
+```
+## quartz_off_screen 
+##                 2
+```
