@@ -256,7 +256,7 @@ The median if we impute the missing values with the computed mean of the corresp
 ```
 
 Comparison | original dataset | modified dataset              
------------|------------------|-------------------          
+-----------|------------------|---------------------          
 mean       |     10,766     |  10,766                                                                          
 median     |   10,765     |  10,766                    
 
