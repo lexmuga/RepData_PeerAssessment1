@@ -197,7 +197,7 @@ The median if we impute the missing values with the computed mean of the corresp
 ```                  
 
 Comparison | original dataset | modified dataset              
------------|------------------|-------------------          
+-----------|------------------|---------------------          
 mean       |     `r mean`     |  `r mean2`                                                                          
 median     |   `r median`     |  `r median2`                    
 
