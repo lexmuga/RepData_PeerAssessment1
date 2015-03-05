@@ -73,19 +73,19 @@ See `figure/plot1-histogram.png`.
 
 ```r
 ##       R Script of the histogram
-png(file = "figure/plot1-histogram.png",width=640,height=480) 
+#       png(file = "figure/plot1-histogram.png",width=640,height=480) 
 qplot(date, data = df, weight = steps, 
       xlab = "Date", ylab = "Steps", 
       main = "Histogram of the Total Number of Steps Taken Per Day") + 
       geom_histogram(colour = "black", fill = "green") + 
       theme(axis.text.x = element_text(angle = 90, colour="blue",size=7),
                 axis.text.y = element_text(colour = "blue",size=10))
-dev.off()
 ```
 
-```
-## quartz_off_screen 
-##                 2
+![](PA1_template_files/figure-html/plotting_histogram-1.png) 
+
+```r
+#       dev.off()
 ```
 
 ####    1.2. We calculate and report the mean and median total number of steps taken per day.
@@ -113,7 +113,7 @@ See `figure/plot2-time_series.png`.
 #       R Script for the time series plot of the average daily activity pattern
 dailyPattern <- summarise(group_by(df, interval), averageSteps = mean(steps)) 
 labels <- sprintf("%0004d",seq(0,2400,by=100))
-png(file = "figure/plot2-time_series.png",width=640,height=480) 
+#       png(file = "figure/plot2-time_series.png",width=640,height=480) 
 xyplot(
   averageSteps ~ interval,
   data = dailyPattern,
@@ -125,12 +125,12 @@ xyplot(
   scales = list(x=list(tick.number=25, labels = labels, rot = 90)),
   xlim = c(0,2399)
 )
-dev.off()
 ```
 
-```
-## quartz_off_screen 
-##                 2
+![](PA1_template_files/figure-html/plotting_time_series-1.png) 
+
+```r
+#       dev.off()
 ```
 
 ####    2.2. We answer the question  "Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?"
@@ -219,19 +219,19 @@ See `figure/plot3-new_histogram.png'.
 
 ```r
 ##       R Script of the histogram      
-png(file = "figure/plot3-new_histogram.png",width=640,height=480) 
+#       png(file = "figure/plot3-new_histogram.png",width=640,height=480) 
 qplot(date, data = newdf, weight = steps, 
       xlab = "Date", ylab = "Steps", 
       main = "Histogram of the Total Number of Steps Taken Per Day") + 
       geom_histogram(colour = "black", fill = "green") + 
       theme(axis.text.x = element_text(angle = 90, colour="blue",size=7),
                 axis.text.y = element_text(colour = "blue",size=10))
-dev.off()
 ```
 
-```
-## quartz_off_screen 
-##                 2
+![](PA1_template_files/figure-html/plotting_new_histogram-1.png) 
+
+```r
+#       dev.off()
 ```
 
 #####   3.4.1. We calculate and report the mean and median total number of steps taken per day. 
@@ -247,13 +247,6 @@ The mean of the total number of steps per day if we impute the missing values wi
 The median if we impute the missing values with the computed mean of the corresponding 5-minute interval is equal to 10,766.
 
 #####   3.4.2. We answer the question "do these values differ from the estimates from the first part of the assignment?". 
-
-```r
-# ##      R Script of the mean and median of the total number of steps per day
-# numSteps2 <- summarise(group_by(newdf, date), total=sum(steps))
-# mean2 <- format(round(mean(numSteps2$total)), big.mark = ",")
-# median2 <- format(round(median(numSteps2$total)), big.mark = ",")
-```
 
 Comparison | original dataset | modified dataset              
 -----------|------------------|---------------------          
@@ -317,7 +310,7 @@ See `figure/plot4-panel_plot.png`
 df2 <- rawdf2[complete.cases(rawdf2),]
 dailyPattern2 <- summarise(group_by(df2, interval, weeklevel), averageSteps = mean(steps)) 
 labels <- sprintf("%0004d",seq(0,2400,by=100))
-png(file = "figure/plot4-panel_plot.png",width=540,height=640) 
+#       png(file = "figure/plot4-panel_plot.png",width=540,height=640) 
 xyplot(averageSteps ~ interval| levels(dailyPattern2$weeklevel), 
        data = dailyPattern2,
        type = "l",
@@ -326,10 +319,10 @@ xyplot(averageSteps ~ interval| levels(dailyPattern2$weeklevel),
        scales = list(x=list(tick.number=25, labels = labels, rot = 90)),
        xlim = c(0,2399),
        layout=c(1,2))
-dev.off()
 ```
 
-```
-## quartz_off_screen 
-##                 2
+![](PA1_template_files/figure-html/plotting_panel_plot-1.png) 
+
+```r
+#       dev.off()
 ```
