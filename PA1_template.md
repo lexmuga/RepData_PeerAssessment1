@@ -72,24 +72,31 @@ library(gridExtra)
 
 ## 1. What is mean total number of steps taken per day?
 
-####    1.1. We make a histogram of the total number of steps taken each day. Days with missing values are not included.
+####    1.1. We make a histogram of the total number of steps taken each day. 
+Days with missing values are not included.
+
 
 
 ```r
 ##       R Script of the histogram
-#       png(file = "figure/plot1-histogram.png",width=640,height=480) 
-qplot(date, data = df, weight = steps, 
+#png(file = "figure/plot1-histogram.png",width=540,height=480) 
+s <- qplot(date, 
+      data = df, 
+      weight = steps, 
       xlab = "Date", ylab = "Steps", 
-      main = "Histogram of the Total Number of Steps Taken Per Day") + 
-      geom_histogram(colour = "black", fill = "green") + 
-      theme(axis.text.x = element_text(angle = 90, colour="blue",size=7),
-                axis.text.y = element_text(colour = "blue",size=10))
+      main = "Histogram of the Total Number of Steps Taken Per Day")
+s <- s + geom_histogram(colour = "black", fill = "green")
+s <- s + theme(axis.text.x = element_text(angle = 90, 
+                                          colour="blue",size=7),
+               axis.text.y = element_text(colour = "blue",
+                                          size=10))
+s
 ```
 
 ![](PA1_template_files/figure-html/plotting_histogram-1.png) 
 
 ```r
-#       dev.off()
+#dev.off()
 ```
 
 ####    1.2. We calculate and report the mean and median total number of steps taken per day.
@@ -100,7 +107,7 @@ qplot(date, data = df, weight = steps,
 numSteps <- summarise(group_by(df, date), total=sum(steps))
 mean <- format(round(mean(numSteps$total)), big.mark = ",")
 median <- format(round(median(numSteps$total)), big.mark = ",")
-#       png(file = "figure/plot2-mean_median.png",width=480,height=640) 
+#png(file = "figure/plot2-mean_median.png",width=480,height=640) 
 q <- qplot(date, data = df, weight = steps,  
             xlab = "Date", ylab = "Steps")
 q <- q + geom_histogram(colour = "black", fill = "green")
@@ -134,15 +141,15 @@ grid.arrange(q1,q2, nrow=2)
 
 ## 2. What is the average daily activity pattern?
 
-####    2.1. We make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all days (y-axis). 
-
+####  2.1. We make a time series plot (i.e. type = "l") of the 5-minute interval (x-axis) 
+and the average number of steps taken, averaged across all days (y-axis).     
 
 
 ```r
 #       R Script for the time series plot of the average daily activity pattern
 dailyPattern <- summarise(group_by(df, interval), averageSteps = mean(steps)) 
 labels <- sprintf("%0004d",seq(0,2400,by=100))
-#       png(file = "figure/plot3-time_series.png",width=640,height=480) 
+#png(file = "figure/plot3-time_series.png",width=640,height=480) 
 xyplot(
   averageSteps ~ interval,
   data = dailyPattern,
@@ -159,10 +166,11 @@ xyplot(
 ![](PA1_template_files/figure-html/plotting_time_series-1.png) 
 
 ```r
-#       dev.off()
+#dev.off()
 ```
 
-####    2.2. We answer the question  "Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?"
+####    2.2. We answer the question...  
+"Which 5-minute interval, on average across all the days in the dataset, contains the maximum number of steps?"
 
 
 ```r
@@ -178,29 +186,28 @@ min <- as.numeric(str_sub(maxindex,start=3,end=4))
 maxint <- sprintf("%s is the %dth 5-minute interval of the %dth hour",
                  maxindex,min/5+1,hr+1)
 labels <- sprintf("%0004d",seq(0,2400,by=100))
-#       png(file = "figure/plot4-max.png",width=640,height=480)
-p <- xyplot(
-        averageSteps ~ interval,
-        data = dailyPattern,
-        panel = function(x, y) {
-                panel.xyplot(x, y, type="l")
-                panel.abline(v=as.numeric(maxindex), lty = "dotted", col = "red")
-                panel.abline(h=maxsteps, lty = "dotted", col = "red")
-                panel.text(1300, 198, labels = maxpt)
-                panel.text(1600, 180, labels = maxint)},
-        main = "The Time-Interval with the Maximum Number of Steps",
-        xlab = "Intervals",
-        ylab = "Number of Steps",
-        scales = list(x=list(tick.number=25, labels = labels, rot = 90)),
-        xlim = c(0,2399)
-        )
+#png(file = "figure/plot4-max.png",width=640,height=480)
+p <- xyplot(averageSteps ~ interval,
+            data = dailyPattern,
+            panel = function(x, y) {
+                    panel.xyplot(x, y, type="l")
+                    panel.abline(v=as.numeric(maxindex), lty = "dotted", col = "red")
+                    panel.abline(h=maxsteps, lty = "dotted", col = "red")
+                    panel.text(1300, 198, labels = maxpt)
+                    panel.text(1600, 180, labels = maxint)},
+            main = "The Time-Interval with the Maximum Number of Steps",
+            xlab = "Intervals",
+            ylab = "Number of Steps",
+            scales = list(x=list(tick.number=25, labels = labels, rot = 90)),
+            xlim = c(0,2399)
+            )
 p
 ```
 
 ![](PA1_template_files/figure-html/plotting_max-1.png) 
 
 ```r
-#       dev.off()
+#dev.off()
 ```
 
 
@@ -275,13 +282,12 @@ names(upper)[1] <- 'steps'
 newdf <- arrange(rbind(upper,lower), date, interval)
 ```
 
-####     3.4. We make a histogram of the total number of steps taken each day.
+####     3.4. We make a histogram of the total number of steps taken each day with the missing values filled in with the mean of the corresponding each 5-minute interval.    
 
-See `figure/plot4-new_histogram.png'.
 
 ```r
 ##       R Script of the histogram      
-#       png(file = "figure/plot3-new_histogram.png",width=640,height=480) 
+#png(file = "figure/plot5-new_histogram.png",width=640,height=480) 
 qplot(date, data = newdf, weight = steps, 
       xlab = "Date", ylab = "Steps", 
       main = "Histogram of the Total Number of Steps Taken Per Day") + 
@@ -293,7 +299,7 @@ qplot(date, data = newdf, weight = steps,
 ![](PA1_template_files/figure-html/plotting_new_histogram-1.png) 
 
 ```r
-#       dev.off()
+#dev.off()
 ```
 
 #####   3.4.1. We calculate and report the mean and median total number of steps taken per day. 
@@ -363,16 +369,17 @@ rawdf2[c(1:3, 1720:1722),]
 ## 1722     0 2012-10-06     2325   weekend
 ```
 
-####    4.2.    We make a panel plot containing a time series plot (i.e. type = "l" ) of the 5-minute interval (x-axis) and the average number of steps taken, averaged across all weekday days or weekend days (y-axis). 
+#### 4.2. We make a panel plot containing a time series plot (i.e. type = "l" ) of the 5-minute interval (x-axis) 
+and the average number of steps taken, averaged across all weekday days or weekend days (y-axis).      
 
-See `figure/plot5-panel_plot.png`
+
 
 ```r
 #       The dataset is processed where observations with missing values are removed.
 df2 <- rawdf2[complete.cases(rawdf2),]
 dailyPattern2 <- summarise(group_by(df2, interval, weeklevel), averageSteps = mean(steps)) 
 labels <- sprintf("%0004d",seq(0,2400,by=100))
-#       png(file = "figure/plot4-panel_plot.png",width=540,height=640) 
+#png(file = "figure/plot6-panel_plot.png",width=540,height=640) 
 xyplot(averageSteps ~ interval| levels(dailyPattern2$weeklevel), 
        data = dailyPattern2,
        type = "l",
@@ -386,5 +393,22 @@ xyplot(averageSteps ~ interval| levels(dailyPattern2$weeklevel),
 ![](PA1_template_files/figure-html/plotting_panel_plot-1.png) 
 
 ```r
-#       dev.off()
+#dev.off()
+
+summarise(group_by(dailyPattern2, weeklevel), 
+          mean = mean(averageSteps),
+          median = median(averageSteps),
+          sd = sd(averageSteps),
+          max = max(averageSteps),
+          min = min(averageSteps))
 ```
+
+```
+## Source: local data frame [2 x 6]
+## 
+##   weeklevel     mean   median       sd      max min
+## 1   weekday 35.33796 23.97436 42.24824 234.1026   0
+## 2   weekend 43.07837 32.03571 44.42178 175.0000   0
+```
+
+Therefore, we can conclude that there are differences in the activity patterns between weekdays and weekends.
