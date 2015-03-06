@@ -170,10 +170,6 @@ p
 #dev.off()
 ```
 
-
-
-Hence, the 5-minute interval that contains the maximum number of steps is equal to `r index` which is the `r min/5+1`th 5-minute interval of the the `r hr+1`th hour of the day.
-
 ## 3. Imputing missing values
 
 ```{r finding_missing_days, echo=TRUE}   

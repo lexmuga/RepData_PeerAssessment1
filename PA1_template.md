@@ -210,10 +210,6 @@ p
 #dev.off()
 ```
 
-
-
-Hence, the 5-minute interval that contains the maximum number of steps is equal to 0835 which is the 8th 5-minute interval of the the 9th hour of the day.
-
 ## 3. Imputing missing values
 
 
